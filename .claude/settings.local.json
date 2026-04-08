@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -oP '\\\\b\\(parts|dataParts|wasmParts\\)\\\\b.{0,300}' \"/c/The HUB Workspace/clgranny3.html\")",
+      "Bash(dd if=\"/c/The HUB Workspace/index.html\" bs=1 skip=47547 count=200)",
+      "Bash(perl -i -0pe 's/\\\\{id:\"granny3\",title:\"Granny 3\",cat:\"Horror\",emoji:\"\\\\x{1F3EB}\",desc:\"Escape the school\\\\.\",src:HUB_CDN\\\\+\"clgranny3\\\\.html\",engine:\"Unity WebGL\",estLoad:\"~15s\"\\\\}/{id:\"granny3\",title:\"Granny 3\",cat:\"Horror\",emoji:\"\\\\x{1F3EB}\",desc:\"Escape the school.\",src:HUB_CDN+\"clgranny3.html\",engine:\"Unity WebGL\",estLoad:\"~15s\",extraAssets:[\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/Build\\\\/v1.data.unityweb.part0\",\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/Build\\\\/v1.data.unityweb.part1\",\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/Build\\\\/v1.data.unityweb.part2\",\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/Build\\\\/v1.data.unityweb.part3\",\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/Build\\\\/v1.wasm.unityweb.part0\",\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/Build\\\\/v1.framework.js.unityweb\",\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/Build\\\\/v1.loader.js\",\"https:\\\\/\\\\/cdn.jsdelivr.net\\\\/gh\\\\/bubbls\\\\/UGS-Assets\\\\@e33a208915bda83b7ba4356e5bb805b7f956336b\\\\/granny%203\\\\/main.min.js\"]}/g' index.html)",
+      "Bash(powershell.exe -Command ':*)",
+      "Bash(grep -oP 'DOMContentLoaded.{0,300}' \"/c/The HUB Workspace/index.html\")",
+      "Bash(grep -oP 'DOMContentLoaded.{0,500}' \"/c/The HUB Workspace/index.html\")",
+      "Bash(grep -oP 'function hubLogin\\\\\\(\\\\\\).{0,500}' \"/c/The HUB Workspace/index.html\")",
+      "Bash(powershell -Command \"[System.IO.File]::ReadAllText\\('C:\\\\The HUB Workspace\\\\index.html'\\).Contains\\('#7c5cfc'\\)\")",
+      "Bash(powershell -Command \"[System.IO.File]::ReadAllText\\('C:\\\\The HUB Workspace\\\\index.html'\\).Contains\\('#6366f1'\\)\")",
+      "Bash(powershell -Command ':*)",
+      "Bash(powershell -Command '$f='\\\\''C:\\\\The HUB Workspace\\\\index.html'\\\\'';$t=[System.IO.File]::ReadAllText\\($f\\);$js=[System.IO.File]::ReadAllText\\('\\\\''C:\\\\The HUB Workspace\\\\_inject.js'\\\\''\\);$insertAt=$t.LastIndexOf\\('\\\\''</script>'\\\\''\\);$t=$t.Insert\\($insertAt,$js\\);[System.IO.File]::WriteAllText\\($f,$t\\);Write-Output\\('\\\\''JS injected. Size: '\\\\''+$t.Length\\)')",
+      "Bash(powershell -Command \"[System.IO.File]::ReadAllText\\('C:\\\\The HUB Workspace\\\\index.html'\\).Contains\\('onclick=\"\"launchC\\(''\"\"'\\)\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\The HUB Workspace\\\\_patch.ps1\")",
+      "Bash(powershell -Command '$t=[System.IO.File]::ReadAllText\\('\\\\''C:\\\\The HUB Workspace\\\\index.html'\\\\''\\);Write-Output $t.Contains\\('\\\\''isNew:true'\\\\''\\);Write-Output $t.Contains\\('\\\\''new-badge'\\\\''\\)')",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\The HUB Workspace\\\\_patch2.ps1\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where python:*)",
+      "Bash(where node:*)",
+      "Bash(where npm:*)",
+      "Bash(where npx:*)",
+      "Bash(where py:*)",
+      "Bash(powershell -Command \"Get-Command node -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source; Get-Command npm -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\The HUB Workspace\\\\_patch3.ps1\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\The HUB Workspace\\\\_patch4.ps1\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\The HUB Workspace\\\\_patch5.ps1\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\The HUB Workspace\\\\_patch6.ps1\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"C:\\\\The HUB Workspace\\\\_patch7.ps1\")"
+    ]
+  }
+}

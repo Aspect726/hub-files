@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HUB Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#08050f;color:#f2eef8;font-family:'Segoe UI',sans-serif;min-height:100vh;padding:30px}
+h1{font-size:1.4rem;margin-bottom:6px;background:linear-gradient(135deg,#7c5cfc,#b47aff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{font-size:.75rem;color:#6e6488;margin-bottom:24px}
+.panel{max-width:600px;margin:0 auto}
+.card{background:rgba(18,10,36,0.48);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:20px;margin-bottom:16px}
+.card h2{font-size:.85rem;font-weight:700;margin-bottom:12px;color:#b47aff;text-transform:uppercase;letter-spacing:1px}
+label{display:block;font-size:.72rem;color:#b0a8c8;margin-bottom:4px;font-weight:600}
+input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#f2eef8;padding:10px 14px;border-radius:8px;font-size:.85rem;margin-bottom:10px;outline:none}
+input:focus{border-color:#7c5cfc;box-shadow:0 0 0 3px rgba(124,92,252,0.15)}
+input::placeholder{color:#6e6488}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+button{background:linear-gradient(135deg,#7c5cfc,#a855f7);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
+button:hover{opacity:.85;transform:translateY(-1px)}
+.btn-danger{background:linear-gradient(135deg,#f43f5e,#dc2626)}
+.btn-small{padding:6px 12px;font-size:.7rem}
+.msg{padding:8px 12px;border-radius:8px;font-size:.76rem;margin-top:8px;display:none}
+.msg.ok{display:block;background:rgba(74,222,128,0.1);color:#4ade80;border:1px solid rgba(74,222,128,0.15)}
+.msg.err{display:block;background:rgba(244,63,94,0.1);color:#f43f5e;border:1px solid rgba(244,63,94,0.15)}
+table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:10px}
+th{text-align:left;padding:8px;color:#6e6488;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.06)}
+td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03)}
+td button{margin-left:4px}
+.empty{text-align:center;color:#6e6488;padding:20px;font-size:.8rem}
+.count{font-family:monospace;font-size:.7rem;color:#6e6488;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="panel">
+  <h1>HUB Admin Panel</h1>
+  <div class="sub">Manage user access for THE HUB OF GAMES</div>
+
+  <div class="card">
+    <h2>Add User</h2>
+    <div class="row">
+      <div><label>Username</label><input id="aUser" placeholder="username"></div>
+      <div><label>Password</label><input id="aPass" placeholder="password"></div>
+    </div>
+    <button onclick="addUser()">Add User</button>
+    <div class="msg" id="aMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>All Users</h2>
+    <button onclick="loadUsers()" style="margin-bottom:8px">Refresh</button>
+    <div class="count" id="uCount"></div>
+    <div id="uList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Change Password</h2>
+    <div class="row">
+      <div><label>Username</label><input id="cUser" placeholder="username"></div>
+      <div><label>New Password</label><input id="cPass" placeholder="new password"></div>
+    </div>
+    <button onclick="changePwd()">Update Password</button>
+    <div class="msg" id="cMsg"></div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import{getDatabase,ref,set,get,remove}from"https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+const app=initializeApp({apiKey:"AIzaSyDOVPrAzcCtMBqqtd5Vej_6UoR5k3Acibo",authDomain:"the-hub-database.firebaseapp.com",databaseURL:"https://the-hub-database-default-rtdb.firebaseio.com",projectId:"the-hub-database",storageBucket:"the-hub-database.firebasestorage.app",messagingSenderId:"181160902220",appId:"1:181160902220:web:4b5f8a217e11ea2faebee9"});
+const db=getDatabase(app);
+
+function msg(id,txt,ok){const e=document.getElementById(id);e.textContent=txt;e.className="msg "+(ok?"ok":"err");setTimeout(()=>e.className="msg",3000)}
+
+window.addUser=async function(){
+  const u=document.getElementById("aUser").value.trim().toLowerCase();
+  const p=document.getElementById("aPass").value;
+  if(!u||!p)return msg("aMsg","Fill in both fields",false);
+  try{
+    const snap=await get(ref(db,"users/"+u));
+    if(snap.exists())return msg("aMsg","Username '"+u+"' already exists",false);
+    await set(ref(db,"users/"+u),{password:p});
+    msg("aMsg","Added '"+u+"'",true);
+    document.getElementById("aUser").value="";
+    document.getElementById("aPass").value="";
+    loadUsers();
+  }catch(e){msg("aMsg",e.message,false)}
+};
+
+window.loadUsers=async function(){
+  const list=document.getElementById("uList");
+  try{
+    const snap=await get(ref(db,"users"));
+    if(!snap.exists()){list.innerHTML='<div class="empty">No users yet</div>';document.getElementById("uCount").textContent="";return}
+    const users=snap.val();
+    const keys=Object.keys(users);
+    document.getElementById("uCount").textContent=keys.length+" user"+(keys.length===1?"":"s");
+    let html="<table><tr><th>#</th><th>Username</th><th>Password</th><th></th></tr>";
+    keys.sort().forEach((u,i)=>{
+      html+='<tr><td>'+(i+1)+'</td><td><strong>'+u+'</strong></td><td style="color:#6e6488">'+users[u].password+'</td><td><button class="btn-danger btn-small" onclick="delUser(\''+u+'\')">Delete</button></td></tr>';
+    });
+    html+="</table>";
+    list.innerHTML=html;
+  }catch(e){list.innerHTML='<div class="empty">Error: '+e.message+'</div>'}
+};
+
+window.delUser=async function(u){
+  if(!confirm("Delete '"+u+"'?"))return;
+  try{await remove(ref(db,"users/"+u));msg("aMsg","Deleted '"+u+"'",true);loadUsers()}catch(e){msg("aMsg",e.message,false)}
+};
+
+window.changePwd=async function(){
+  const u=document.getElementById("cUser").value.trim().toLowerCase();
+  const p=document.getElementById("cPass").value;
+  if(!u||!p)return msg("cMsg","Fill in both fields",false);
+  try{
+    const snap=await get(ref(db,"users/"+u));
+    if(!snap.exists())return msg("cMsg","User '"+u+"' not found",false);
+    await set(ref(db,"users/"+u),{password:p});
+    msg("cMsg","Password updated for '"+u+"'",true);
+    document.getElementById("cUser").value="";
+    document.getElementById("cPass").value="";
+    loadUsers();
+  }catch(e){msg("cMsg",e.message,false)}
+};
+
+loadUsers();
+</script>
+</body>
+</html>
