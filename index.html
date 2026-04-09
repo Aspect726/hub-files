@@ -528,6 +528,14 @@ async function loadGamesFromDB() {
       document.body.style.cursor = "auto";
       dot.style.display = ring.style.display = orb.style.display = "none";
     } } function startClock() { const e = document.getElementById("sbClock"); !function t() { e.textContent = (new Date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), setTimeout(t, 1e4) }() } function checkSchool() { const n = new Date, d = n.getDay(), m = 60 * n.getHours() + n.getMinutes(); let s = !1; d >= 1 && d <= 5 && m >= 580 && m < (3 === d ? 860 : 930) && (s = !0), document.getElementById("sbSchool").classList.toggle("visible", s) } function applyTheme() { document.body.classList.toggle("light", "light" === theme), document.getElementById("themeLbl").textContent = "dark" === theme ? "☀️" : "🌙" } function toggleTheme() { theme = "dark" === theme ? "light" : "dark", lsS("theme", theme), applyTheme() } document.addEventListener("DOMContentLoaded", function() {
+  /* Pick up auth from URL hash (set by launcher) */
+  var _hm = location.hash.match(/auth=([^&]+)/);
+  if (_hm) {
+    var _hu = decodeURIComponent(_hm[1]);
+    lsS("auth", _hu);
+    /* Clean hash so it doesn't linger in URL bar */
+    history.replaceState(null, "", location.pathname + location.search);
+  }
   document.getElementById("bootLoader").style.display = "flex";
   var _bs = Date.now();
   loadGamesFromDB().then(function() { return loadFromFB(); }).then(function() {
