@@ -237,6 +237,7 @@ button:active, .h-link:active, .gc-play:active, .gl-play:active, .hero-play:acti
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script>
   firebase.initializeApp({
     apiKey: "AIzaSyDOVPrAzcCtMBqqtd5Vej_6UoR5k3Acibo",
@@ -455,12 +456,8 @@ button:active, .h-link:active, .gc-play:active, .gl-play:active, .hero-play:acti
         <div class="sec-title" style="font-size:1.25rem;letter-spacing:1px;margin-bottom:4px">⚙️ ADMIN PANEL</div>
         <p style="color:var(--tx2);font-size:.84rem;margin-bottom:20px">Manage user access for THE HUB OF GAMES</p>
         <div class="admin-card glass glass-condensation" style="padding:24px;margin-bottom:16px">
-          <div class="sec-title" style="margin-bottom:12px">➕ ADD USER</div>
-          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-            <div style="flex:1;min-width:150px"><label style="display:block;font-size:.68rem;color:var(--tx2);margin-bottom:4px;font-weight:600;font-family:var(--mono)">USERNAME</label><input id="adUser" placeholder="username" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--tx);padding:10px 14px;border-radius:var(--r-xs);font-size:.85rem;font-family:var(--font);outline:none"></div>
-            <div style="flex:1;min-width:150px"><label style="display:block;font-size:.68rem;color:var(--tx2);margin-bottom:4px;font-weight:600;font-family:var(--mono)">PASSWORD</label><input id="adPass" placeholder="password" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--tx);padding:10px 14px;border-radius:var(--r-xs);font-size:.85rem;font-family:var(--font);outline:none"></div>
-          </div>
-          <button class="c-btn rh" onclick="adminAddUser()" style="background:var(--gd-btn);color:#fff;border:none;padding:10px 24px">Add User</button>
+          <div class="sec-title" style="margin-bottom:8px">ℹ️ USER MANAGEMENT</div>
+          <p style="font-size:.78rem;color:var(--tx2);line-height:1.5;margin-bottom:10px">Users are managed through <strong>Firebase Authentication</strong>. To add or remove users, go to the <a href="https://console.firebase.google.com/project/the-hub-database/authentication/users" target="_blank" style="color:var(--a2);text-decoration:none">Firebase Console → Authentication</a>.</p>
           <div id="adMsg" style="padding:8px 12px;border-radius:8px;font-size:.76rem;margin-top:8px;display:none"></div>
         </div>
         <div class="admin-card glass glass-condensation" style="padding:24px;margin-bottom:16px">
@@ -471,15 +468,7 @@ button:active, .h-link:active, .gc-play:active, .gl-play:active, .hero-play:acti
           <div id="adCount" style="font-family:var(--mono);font-size:.7rem;color:var(--tx3);margin-bottom:8px"></div>
           <div id="adList"></div>
         </div>
-        <div class="admin-card glass glass-condensation" style="padding:24px;margin-bottom:16px">
-          <div class="sec-title" style="margin-bottom:12px">🔑 CHANGE PASSWORD</div>
-          <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-            <div style="flex:1;min-width:150px"><label style="display:block;font-size:.68rem;color:var(--tx2);margin-bottom:4px;font-weight:600;font-family:var(--mono)">USERNAME</label><input id="adCUser" placeholder="username" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--tx);padding:10px 14px;border-radius:var(--r-xs);font-size:.85rem;font-family:var(--font);outline:none"></div>
-            <div style="flex:1;min-width:150px"><label style="display:block;font-size:.68rem;color:var(--tx2);margin-bottom:4px;font-weight:600;font-family:var(--mono)">NEW PASSWORD</label><input id="adCPass" placeholder="new password" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--bd);color:var(--tx);padding:10px 14px;border-radius:var(--r-xs);font-size:.85rem;font-family:var(--font);outline:none"></div>
-          </div>
-          <button class="c-btn rh" onclick="adminChangePwd()" style="background:var(--gd-btn);color:#fff;border:none;padding:10px 24px">Update Password</button>
-          <div id="adCMsg" style="padding:8px 12px;border-radius:8px;font-size:.76rem;margin-top:8px;display:none"></div>
-        </div>
+        
       </div>
     </main>
   </div>
@@ -522,31 +511,66 @@ async function loadGamesFromDB() {
     console.error("loadGamesFromDB error:", e);
   }
 }
-; function lsG(k, d) { try { const v = localStorage.getItem("hv3_" + k); return v ? JSON.parse(v) : d } catch { return d } } function lsS(k, v) { try { localStorage.setItem("hv3_" + k, JSON.stringify(v)) } catch { } } function syncToFB(){var u=lsG("auth",null);if(!u)return;firebase.database().ref("users/"+encodeURIComponent(u)).update({pData:pData,favs:favs,sLog:sLog}).catch(function(e){console.log("FB sync:",e)})} function loadFromFB(){var u=lsG("auth",null);if(!u)return Promise.resolve();return firebase.database().ref("users/"+encodeURIComponent(u)).once("value").then(function(snap){var d=snap.val();if(!d)return;d.pData&&(pData=d.pData,lsS("pData",pData));d.favs&&(favs=Array.isArray(d.favs)?d.favs:Object.values(d.favs),lsS("favs",favs));d.sLog&&(sLog=Array.isArray(d.sLog)?d.sLog:Object.values(d.sLog),lsS("sLog",sLog))}).catch(function(e){console.log("FB load:",e)})} function hubLogout() { location.reload(); } function checkHubAuth() { return true; } let favs = lsG("favs", []), pData = lsG("pData", {}), sLog = lsG("sLog", []), theme = lsG("theme", "dark"), curTab = "home", aWins = {}, vZones = [], vPop = { year: {}, week: {} }, vLoaded = !1, ctxTgt = null, fabOpen = !1; !function () { if (!(Object.keys(pData).length > 0)) try { const v2pd = localStorage.getItem("hubv2_playData"), v2sl = localStorage.getItem("hubv2_sessionLog"), v2fav = localStorage.getItem("hubv2_favorites"); if (v2pd && (pData = JSON.parse(v2pd), lsS("pData", pData)), v2sl) { const v2sessions = JSON.parse(v2sl); sLog = v2sessions.map(e => ({ id: e.id, st: e.startTime || e.st, ms: e.durationMs || e.ms, t: e.type || "c" })), lsS("sLog", sLog) } v2fav && (favs = JSON.parse(v2fav), lsS("favs", favs)), (v2pd || v2sl || v2fav) && console.log("Migrated V2 data to V3") } catch (e) { console.log("V2 migration skipped:", e) } }(); function initApp() { regSW(), spawnParticles(), setupCursor(), document.getElementById("app").style.display = "block", applyTheme(), startClock(), renderHome(), setupEvents(), checkSchool(), setInterval(checkSchool, 6e4), setInterval(updateNP, 1e3), setTimeout(startCache, 2500), loadVault(), typewriter("heroTitle", "Pick a game to start", 50), setTimeout(updatePillSlider, 50) } function regSW() { if (!("serviceWorker" in navigator)) return; const s = `const C='${CACHE_NAME}';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.registration.scope])).then(()=>self.skipWaiting()))});self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open(C).then(c=>c.match(e.request).then(r=>{if(r)return r;return fetch(e.request).then(nr=>{if(nr&&nr.ok){try{c.put(e.request,nr.clone())}catch(x){}}return nr})})).catch(()=>new Response('Offline',{status:503})))});`; navigator.serviceWorker.register(URL.createObjectURL(new Blob([s], { type: "application/javascript" })), { scope: "/" }).catch(() => { }) } function spawnParticles() { const c = document.getElementById("particles"); const _pCount = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) ? 8 : 20; for (let i = 0; i < _pCount; i++) { const p = document.createElement("div"); p.className = "particle", p.style.left = 100 * Math.random() + "%", p.style.top = 100 * Math.random() + "%", p.style.width = p.style.height = 1 + 2 * Math.random() + "px", p.style.background = Math.random() > .5 ? "rgba(124,92,252,0.35)" : "rgba(124,92,252,0.15)", p.style.animationDuration = 18 + 22 * Math.random() + "s", p.style.animationDelay = 20 * -Math.random() + "s", c.appendChild(p) } } function setupCursor() { const dot = document.getElementById("curDot"), ring = document.getElementById("curRing"), orb = document.getElementById("curOrb"); let mx = 0, my = 0, dx = 0, dy = 0, rx = 0, ry = 0, ox = 0, oy = 0, active = !1; document.addEventListener("mousemove", e => { mx = e.clientX, my = e.clientY, active || (active = !0, orb.classList.add("active")) }), document.addEventListener("mouseleave", () => { active = !1, orb.classList.remove("active") }), document.addEventListener("mousedown", () => ring.classList.add("click")), document.addEventListener("mouseup", () => ring.classList.remove("click")), document.addEventListener("mouseover", e => { const t = e.target; t.closest && (t.closest("button") || t.closest(".gc") || t.closest(".pill-btn") || t.closest("a") || t.closest(".cont-card")) ? ring.classList.add("hover") : ring.classList.remove("hover") }), function anim() { dx += .15 * (mx - dx), dy += .15 * (my - dy), rx += .09 * (mx - rx), ry += .09 * (my - ry), ox += .06 * (mx - ox), oy += .06 * (my - oy), dot.style.left = dx + "px", dot.style.top = dy + "px", ring.style.left = rx + "px", ring.style.top = ry + "px", orb.style.left = ox + "px", orb.style.top = oy + "px", requestAnimationFrame(anim) }();
+; function lsG(k, d) { try { const v = localStorage.getItem("hv3_" + k); return v ? JSON.parse(v) : d } catch { return d } } function lsS(k, v) { try { localStorage.setItem("hv3_" + k, JSON.stringify(v)) } catch { } } function syncToFB(){var cu=firebase.auth().currentUser;if(!cu)return;firebase.database().ref("users/"+cu.uid).update({pData:pData,favs:favs,sLog:sLog}).catch(function(e){console.log("FB sync:",e)})} function loadFromFB(){var cu=firebase.auth().currentUser;if(!cu)return Promise.resolve();return firebase.database().ref("users/"+cu.uid).once("value").then(function(snap){var d=snap.val();if(!d)return;d.pData&&(pData=d.pData,lsS("pData",pData));d.favs&&(favs=Array.isArray(d.favs)?d.favs:Object.values(d.favs),lsS("favs",favs));d.sLog&&(sLog=Array.isArray(d.sLog)?d.sLog:Object.values(d.sLog),lsS("sLog",sLog))}).catch(function(e){console.log("FB load:",e)})} function hubLogout() { firebase.auth().signOut().then(function() { localStorage.removeItem("hv3_auth"); localStorage.removeItem("hv3_authUid"); location.reload(); }).catch(function() { location.reload(); }); } function checkHubAuth() { return true; } let favs = lsG("favs", []), pData = lsG("pData", {}), sLog = lsG("sLog", []), theme = lsG("theme", "dark"), curTab = "home", aWins = {}, vZones = [], vPop = { year: {}, week: {} }, vLoaded = !1, ctxTgt = null, fabOpen = !1; !function () { if (!(Object.keys(pData).length > 0)) try { const v2pd = localStorage.getItem("hubv2_playData"), v2sl = localStorage.getItem("hubv2_sessionLog"), v2fav = localStorage.getItem("hubv2_favorites"); if (v2pd && (pData = JSON.parse(v2pd), lsS("pData", pData)), v2sl) { const v2sessions = JSON.parse(v2sl); sLog = v2sessions.map(e => ({ id: e.id, st: e.startTime || e.st, ms: e.durationMs || e.ms, t: e.type || "c" })), lsS("sLog", sLog) } v2fav && (favs = JSON.parse(v2fav), lsS("favs", favs)), (v2pd || v2sl || v2fav) && console.log("Migrated V2 data to V3") } catch (e) { console.log("V2 migration skipped:", e) } }(); function initApp() { regSW(), spawnParticles(), setupCursor(), document.getElementById("app").style.display = "block", applyTheme(), startClock(), renderHome(), setupEvents(), checkSchool(), setInterval(checkSchool, 6e4), setInterval(updateNP, 1e3), setTimeout(startCache, 2500), loadVault(), typewriter("heroTitle", "Pick a game to start", 50), setTimeout(updatePillSlider, 50) } function regSW() { if (!("serviceWorker" in navigator)) return; const s = `const C='${CACHE_NAME}';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([self.registration.scope])).then(()=>self.skipWaiting()))});self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open(C).then(c=>c.match(e.request).then(r=>{if(r)return r;return fetch(e.request).then(nr=>{if(nr&&nr.ok){try{c.put(e.request,nr.clone())}catch(x){}}return nr})})).catch(()=>new Response('Offline',{status:503})))});`; navigator.serviceWorker.register(URL.createObjectURL(new Blob([s], { type: "application/javascript" })), { scope: "/" }).catch(() => { }) } function spawnParticles() { const c = document.getElementById("particles"); const _pCount = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2) ? 8 : 20; for (let i = 0; i < _pCount; i++) { const p = document.createElement("div"); p.className = "particle", p.style.left = 100 * Math.random() + "%", p.style.top = 100 * Math.random() + "%", p.style.width = p.style.height = 1 + 2 * Math.random() + "px", p.style.background = Math.random() > .5 ? "rgba(124,92,252,0.35)" : "rgba(124,92,252,0.15)", p.style.animationDuration = 18 + 22 * Math.random() + "s", p.style.animationDelay = 20 * -Math.random() + "s", c.appendChild(p) } } function setupCursor() { const dot = document.getElementById("curDot"), ring = document.getElementById("curRing"), orb = document.getElementById("curOrb"); let mx = 0, my = 0, dx = 0, dy = 0, rx = 0, ry = 0, ox = 0, oy = 0, active = !1; document.addEventListener("mousemove", e => { mx = e.clientX, my = e.clientY, active || (active = !0, orb.classList.add("active")) }), document.addEventListener("mouseleave", () => { active = !1, orb.classList.remove("active") }), document.addEventListener("mousedown", () => ring.classList.add("click")), document.addEventListener("mouseup", () => ring.classList.remove("click")), document.addEventListener("mouseover", e => { const t = e.target; t.closest && (t.closest("button") || t.closest(".gc") || t.closest(".pill-btn") || t.closest("a") || t.closest(".cont-card")) ? ring.classList.add("hover") : ring.classList.remove("hover") }), function anim() { dx += .15 * (mx - dx), dy += .15 * (my - dy), rx += .09 * (mx - rx), ry += .09 * (my - ry), ox += .06 * (mx - ox), oy += .06 * (my - oy), dot.style.left = dx + "px", dot.style.top = dy + "px", ring.style.left = rx + "px", ring.style.top = ry + "px", orb.style.left = ox + "px", orb.style.top = oy + "px", requestAnimationFrame(anim) }();
     /* Disable custom cursor on touch devices for perf */
     if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
       document.body.style.cursor = "auto";
       dot.style.display = ring.style.display = orb.style.display = "none";
     } } function startClock() { const e = document.getElementById("sbClock"); !function t() { e.textContent = (new Date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), setTimeout(t, 1e4) }() } function checkSchool() { const n = new Date, d = n.getDay(), m = 60 * n.getHours() + n.getMinutes(); let s = !1; d >= 1 && d <= 5 && m >= 580 && m < (3 === d ? 860 : 930) && (s = !0), document.getElementById("sbSchool").classList.toggle("visible", s) } function applyTheme() { document.body.classList.toggle("light", "light" === theme), document.getElementById("themeLbl").textContent = "dark" === theme ? "☀️" : "🌙" } function toggleTheme() { theme = "dark" === theme ? "light" : "dark", lsS("theme", theme), applyTheme() } document.addEventListener("DOMContentLoaded", function() {
-  /* Pick up auth from URL hash (set by launcher) */
-  var _hm = location.hash.match(/auth=([^&]+)/);
-  if (_hm) {
-    var _hu = decodeURIComponent(_hm[1]);
-    lsS("auth", _hu);
-    /* Clean hash so it doesn't linger in URL bar */
-    history.replaceState(null, "", location.pathname + location.search);
-  }
   document.getElementById("bootLoader").style.display = "flex";
   var _bs = Date.now();
-  loadGamesFromDB().then(function() { return loadFromFB(); }).then(function() {
-    initApp(); initProfile(); updatePillSlider();
-    var _el = Date.now() - _bs, _rm = Math.max(0, 1500 - _el);
-    setTimeout(function() {
-      var bl = document.getElementById("bootLoader");
-      bl.classList.add("fade-out");
-      setTimeout(function() { bl.style.display = "none"; bl.classList.remove("fade-out"); }, 700);
-    }, _rm);
-  });
+
+  /* Pick up credentials from URL hash (set by launcher) */
+  var _he = null, _hp = null;
+  var _hem = location.hash.match(/email=([^&]+)/);
+  var _hpm = location.hash.match(/key=([^&]+)/);
+  if (_hem) _he = decodeURIComponent(_hem[1]);
+  if (_hpm) _hp = decodeURIComponent(_hpm[1]);
+  /* Clean hash immediately */
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+
+  function bootHub() {
+    loadGamesFromDB().then(function() { return loadFromFB(); }).then(function() {
+      initApp(); initProfile(); updatePillSlider();
+      var _el = Date.now() - _bs, _rm = Math.max(0, 1500 - _el);
+      setTimeout(function() {
+        var bl = document.getElementById("bootLoader");
+        bl.classList.add("fade-out");
+        setTimeout(function() { bl.style.display = "none"; bl.classList.remove("fade-out"); }, 700);
+      }, _rm);
+    });
+  }
+
+  /* Sign in with Firebase Auth */
+  if (_he && _hp) {
+    firebase.auth().signInWithEmailAndPassword(_he, _hp).then(function(cred) {
+      console.log("Firebase Auth: signed in as " + cred.user.email);
+      firebase.database().ref("users/" + cred.user.uid + "/email").set(cred.user.email).catch(function(){});
+      lsS("auth", cred.user.email);
+      lsS("authUid", cred.user.uid);
+      bootHub();
+    }).catch(function(e) {
+      console.error("Firebase Auth failed:", e.message);
+      /* Try to continue with existing auth state */
+      var existing = firebase.auth().currentUser;
+      if (existing) {
+        lsS("auth", existing.email);
+        lsS("authUid", existing.uid);
+      }
+      bootHub();
+    });
+  } else {
+    /* No hash creds - check for existing Firebase Auth session */
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        lsS("auth", user.email);
+        lsS("authUid", user.uid);
+      }
+      bootHub();
+    }, { onlyOnce: true });
+    /* Fallback timeout in case onAuthStateChanged is slow */
+    setTimeout(function() { bootHub(); }, 3000);
+  }
 }); let twActive = {}, twCancel = {}; function typewriter(id, text, speed) { if (twActive[id]) return; twActive[id] = !0, twCancel[id] = !1; const el = document.getElementById(id); el.textContent = ""; let i = 0; !function t() { twCancel[id] ? twActive[id] = !1 : i < text.length ? (el.textContent += text[i], i++, setTimeout(t, speed)) : twActive[id] = !1 }() } function cancelTypewriter(id) { twCancel[id] = !0, twActive[id] = !1 } function animCount(el, target, suffix = "") { const start = performance.now(), from = parseInt(el.textContent) || 0; !function f(now) { const p = Math.min((now - start) / 800, 1), v = Math.round(from + (target - from) * p); el.textContent = v + suffix, p < 1 && requestAnimationFrame(f) }(performance.now()) } function updatePillSlider(){var a=document.querySelector(".pill-btn.active"),s=document.getElementById("pillSlider");if(!a||!s)return;var n=document.getElementById("pillNav"),nr=n.getBoundingClientRect(),ar=a.getBoundingClientRect();if(!s._i){s.style.transition="none";s._i=1;requestAnimationFrame(function(){requestAnimationFrame(function(){s.style.transition=""})})}s.style.left=(ar.left-nr.left)+"px";s.style.width=ar.width+"px"} window.addEventListener("resize",updatePillSlider); function switchTab(tab) { if (tab === curTab) return; const old = document.getElementById("tab-" + curTab); old && (old.classList.add("leaving"), setTimeout(() => { old.classList.remove("active", "leaving") }, 200)), setTimeout(() => { const el = document.getElementById("tab-" + tab); el && (el.classList.add("active", "entering"), setTimeout(() => el.classList.remove("entering"), 400)), document.querySelectorAll(".pill-btn").forEach(n => n.classList.remove("active")), document.querySelector(`.pill-btn[data-tab="${tab}"]`)?.classList.add("active"); updatePillSlider(); const nd = document.getElementById("nd-" + tab); nd && nd.classList.remove("visible"), curTab = tab, window.scrollTo({ top: 0, behavior: "smooth" }), "vault" !== tab || vLoaded || loadVault(), "favorites" === tab && renderFavs(), "history" === tab && renderHistory(), "cache" === tab && renderCache(), "home" === tab && renderHome(), "admin" === tab && adminLoadUsers() }, old ? 200 : 0) } function notifyTab(tab) { if (tab === curTab) return; const d = document.getElementById("nd-" + tab); d && d.classList.add("visible") } function toast(msg, icon = "✅") { const c = document.getElementById("toasts"), t = document.createElement("div"); t.className = "toast glass-top", t.innerHTML = `<span>${icon}</span><span>${msg}</span>`, c.appendChild(t), setTimeout(() => { t.classList.add("out"), setTimeout(() => t.remove(), 300) }, 3200) } function addRip(e, el) { const r = document.createElement("span"); r.className = "ripple"; const rect = el.getBoundingClientRect(), sz = Math.max(rect.width, rect.height); r.style.width = r.style.height = sz + "px", r.style.left = e.clientX - rect.left - sz / 2 + "px", r.style.top = e.clientY - rect.top - sz / 2 + "px", el.appendChild(r), setTimeout(() => r.remove(), 550) } function crack(el, e) { const c = document.createElement("div"); c.className = "crack-container"; const rect = el.getBoundingClientRect(), cx = e.clientX - rect.left, cy = e.clientY - rect.top; for (let i = 0; i < 5; i++) { const l = document.createElement("div"); l.className = "crack-line", l.style.left = cx + "px", l.style.top = cy + "px", l.style.width = 15 + 25 * Math.random() + "px", l.style.height = "1px", l.style.transform = `rotate(${360 * Math.random()}deg)`, l.style.animationDelay = 30 * i + "ms", c.appendChild(l) } el.appendChild(c), setTimeout(() => c.remove(), 500) } function toggleFab() { fabOpen = !fabOpen, document.getElementById("fab").classList.toggle("open", fabOpen), document.getElementById("fabMenu").classList.toggle("open", fabOpen) } function fabAction(a) { toggleFab(), "random" === a ? launchRandom() : "vault" === a ? switchTab("vault") : "theme" === a ? toggleTheme() : "keys" === a && document.getElementById("kbOverlay").classList.add("visible") } function fmtTime(ms) { if (!ms || ms < 1e3) return "0m"; const m = Math.floor(ms / 6e4); return m < 60 ? m + "m" : Math.floor(m / 60) + "h " + m % 60 + "m" } function fmtSec(ms) { const s = Math.floor(ms / 1e3), m = Math.floor(s / 60); return String(m).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0") } function ago(ts) { const d = Date.now() - ts, m = Math.floor(d / 6e4); if (m < 1) return "Just now"; if (m < 60) return m + "m ago"; const h = Math.floor(m / 60); return h < 24 ? h + "h ago" : Math.floor(h / 24) + "d ago" } function fmtN(n) { return n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : n + "" } function esc(s) { return s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : "" } function fmtDate(ts) { const d = new Date(ts); return d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) } function eP(id) { pData[id] || (pData[id] = { totalMs: 0, lastPlayed: 0, sessions: 0, longestSession: 0 }) } function recStart(id) { eP(id), pData[id].lastPlayed = Date.now(), pData[id].sessions++, lsS("pData", pData), syncToFB() } function recEnd(id, st, ms) { eP(id), pData[id].totalMs += ms, ms > pData[id].longestSession && (pData[id].longestSession = ms), pData[id].lastPlayed = Date.now(), lsS("pData", pData), sLog.unshift({ id: id, st: st, ms: ms, t: id.startsWith("v_") ? "v" : "c" }), sLog.length > 150 && (sLog = sLog.slice(0, 150)), lsS("sLog", sLog), updateStats(), notifyTab("history"), syncToFB(), toast(`Session: ${fmtTime(ms)}`, "🎮") } function trackWin(id, win, emoji, title) { const st = Date.now(); let lt = st; aWins[id] = { win: win, st: st, emoji: emoji, title: title }, updateNP(); const iv = setInterval(() => { try { if (win.closed) return clearInterval(iv), recEnd(id, st, Date.now() - st), delete aWins[id], void updateNP() } catch(ex) { return clearInterval(iv), recEnd(id, st, Date.now() - st), delete aWins[id], void updateNP() }; const now = Date.now(); if (now - lt >= 3e4) { const e = now - lt; lt = now, eP(id), pData[id].totalMs += e, pData[id].lastPlayed = now, now - st > pData[id].longestSession && (pData[id].longestSession = now - st), lsS("pData", pData), updateStats(), syncToFB(), document.title = `▶ ${title} (${fmtSec(now - st)}) — THE HUB` } }, 2e3); aWins[id].iv = iv } function updateNP() { const np = document.getElementById("sbNP"), keys = Object.keys(aWins); if (!keys.length) return np.classList.remove("visible"), void (document.title = "THE HUB OF GAMES — V3.5"); const f = aWins[keys[0]]; np.classList.add("visible"), document.getElementById("npT").textContent = f.title || "Game", document.getElementById("npTm").textContent = fmtSec(Date.now() - f.st) } function updateStats() { const ids = Object.keys(pData); document.getElementById("stG").textContent = ids.length, document.getElementById("stT").textContent = fmtTime(ids.reduce((s, id) => s + (pData[id].totalMs || 0), 0)); let mId = null, mMs = 0; for (const id of ids) (pData[id].totalMs || 0) > mMs && (mMs = pData[id].totalMs, mId = id); const mg = mId ? GAMES.find(g => g.id === mId) : null; let mpName = mg ? mg.title : resolveVaultName(mId); document.getElementById("stF").textContent = mpName; let lMs = 0; for (const id of ids) (pData[id].longestSession || 0) > lMs && (lMs = pData[id].longestSession); document.getElementById("stL").textContent = fmtTime(lMs), renderQL() } function renderQL() { const sorted = Object.entries(pData).sort((a, b) => (b[1].totalMs || 0) - (a[1].totalMs || 0)).slice(0, 4); document.getElementById("sbQL").innerHTML = sorted.map(([id]) => { const g = GAMES.find(x => x.id === id); return g ? `<div class="h-ql-btn rh" data-t="${g.title}" onclick="launchC('${g.id}')">${g.emoji}</div>` : "" }).join("") } function buildGC(o) { const catCol = o.cat ? `var(--cat-${o.cat.toLowerCase()})` : "var(--a1)", favCls = o.isFav ? "active" : "", delay = void 0 !== o.si ? `animation-delay:${35 * o.si}ms` : ""; let vis = ""; return vis = o.cover ? `<img src="${o.cover}" alt="${esc(o.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=gc-emoji>${o.emoji || "🎮"}</span>'"><div class="shim"></div>` : `<span class="gc-emoji">${o.emoji || "🎮"}</span>`, `<div class="gc entering" style="${delay}" data-gid="${o.id}" data-cur="${o.isCur ? 1 : 0}" oncontextmenu="showCtx(event,'${o.id}',${o.isCur ? 1 : 0})">\n    <div class="gc-inner glass glass-condensation shine-sweep border-glow">\n      <div class="gc-vis">${vis}<div class="gc-glow"></div><div class="gc-accent" style="background:${catCol}"></div></div>\n      <div class="gc-body">\n        <div class="gc-title">${esc(o.title)}</div>\n        <div class="gc-meta">${o.cat ? `<span class="gc-badge ${o.cat}">${o.cat}</span>` : ""}${o.plays ? `<span class="gc-plays">▶ ${fmtN(o.plays)}</span>` : ""}</div>\n        ${o.desc ? `<div class="gc-desc">${esc(o.desc)}</div>` : ""}\n      </div>\n      <div class="gc-bottom">\n        <button class="gc-play rh" onclick="event.stopPropagation();${o.isCur ? `launchC('${o.id}')` : `launchV(${o.id})`}">Play Now</button>\n        <button class="gc-fav ${favCls}" onclick="event.stopPropagation();togFav('${o.id}')">⭐</button>\n        <button class="gc-cache" id="gcb-${o.id}" onclick="event.stopPropagation();cacheG('${o.id}',${o.isCur ? 1 : 0})">⬇</button>\n      </div>\n    </div>\n  </div>` } function buildGL(g, i) { const catCol = g.cat ? `var(--cat-${g.cat.toLowerCase()})` : "var(--a1)", favCls = favs.includes(g.id) ? "active" : "", pd = pData[g.id], playTime = pd ? fmtTime(pd.totalMs) : "0m", lastP = pd && pd.lastPlayed ? ago(pd.lastPlayed) : ""; return `<div class="gl entering" style="animation-delay:${60 * i}ms" data-gid="${g.id}" data-cur="1" oncontextmenu="showCtx(event,'${g.id}',1)" onclick="openGameDetail('${g.id}',true)">\n    <div class="gl-accent" style="background:${catCol}"></div>\n    <div class="gl-emoji">${g.emoji}</div>\n    <div class="gl-info">\n      <div class="gl-top"><span class="gl-title">${esc(g.title)}</span>${g.isNew ? '<span class="new-badge">NEW</span>' : ''}<button class="gl-fav ${favCls}" onclick="event.stopPropagation();togFav('${g.id}')">⭐</button></div>\n      <div class="gl-meta">${g.cat ? `<span class="gl-badge ${g.cat}">${g.cat}</span>` : ""}<span class="gl-plays">⏱ ${playTime}</span>${lastP ? `<span class="gl-plays">🕐 ${lastP}</span>` : ""}</div>\n      <div class="gl-desc">${esc(g.desc)}</div>\n    </div>\n    <div class="gl-right">\n      <div class="gl-cache-info"><span class="gl-size" id="gls-${g.id}">Not cached</span><span class="gl-cached" id="glc-${g.id}"></span></div>\n      <button class="gl-play rh" onclick="event.stopPropagation();launchC('${g.id}')">Play Now</button>\n    </div>\n  </div>` } async function updateListCacheStatus() { try { const cache = await caches.open(CACHE_NAME); for (const game of GAMES) { const sizeEl = document.getElementById("gls-" + game.id), statusEl = document.getElementById("glc-" + game.id); if (!sizeEl || !statusEl) continue; let sz = 0; try { const r = await cache.match("https://hub-cache/" + game.id); if (r) { const html = await r.clone().text(); for (const u of [...new Set(["https://hub-cache/" + game.id, ...getAssets(html), ...(game.extraAssets || [])])]) { const res = await cache.match(u); res && (sz += (await res.clone().blob()).size) } } } catch { } sz > 1e3 ? (sizeEl.textContent = (sz / 1048576).toFixed(1) + "MB", sizeEl.style.color = "var(--a4)", sizeEl.style.borderColor = "rgba(74,222,128,0.15)", sizeEl.style.background = "rgba(74,222,128,0.08)", statusEl.textContent = "✓ Cached") : (sizeEl.textContent = "Not cached", sizeEl.style.color = "var(--tx3)", sizeEl.style.borderColor = "var(--bd)", sizeEl.style.background = "rgba(255,255,255,0.03)", statusEl.textContent = "") } } catch { } } function resolveVaultName(id) { if (!id) return "—"; const s = String(id); if (!s.startsWith("v_")) return s; const vid = parseInt(s.slice(2)), vz = vZones.find(x => x.id === vid); return vz ? vz.name : "Loading..." } document.addEventListener("click", e => { const h = e.target.closest(".rh"); h && addRip(e, h) }); let heroRendered = !1; function renderHome() { updateStats(); const rec = Object.entries(pData).sort((a, b) => (b[1].lastPlayed || 0) - (a[1].lastPlayed || 0)); if (rec.length && rec[0][1].lastPlayed) { const rid = rec[0][0], rpd = rec[0][1], g = GAMES.find(x => x.id === rid), heroName = g ? g.title : resolveVaultName(rid); document.getElementById("heroEmoji").textContent = g ? g.emoji : "🎮", cancelTypewriter("heroTitle"), heroRendered ? document.getElementById("heroTitle").textContent = heroName : typewriter("heroTitle", heroName, 40), document.getElementById("heroSub").textContent = `Last played ${ago(rpd.lastPlayed)} · ${fmtTime(rpd.totalMs)} total`, document.getElementById("heroPlay").style.display = "block", document.getElementById("heroPlay").setAttribute("data-id", rid), document.getElementById("heroLbl").textContent = "CONTINUE PLAYING" } else cancelTypewriter("heroTitle"), heroRendered ? document.getElementById("heroTitle").textContent = "Pick a game to start" : typewriter("heroTitle", "Pick a game to start", 50); heroRendered = !0; const recG = rec.filter(([, p]) => p.lastPlayed).slice(0, 6), cs = document.getElementById("contSec"); recG.length > 1 ? (cs.style.display = "block", document.getElementById("contRow").innerHTML = recG.map(([id, pd]) => { const g = GAMES.find(x => x.id === id), cName = g ? g.title : resolveVaultName(id), cEmoji = g ? g.emoji : "🎮"; return `<div class="cont-card glass-lift" onclick="${g ? `launchC('${id}')` : `launchV(${parseInt(String(id).replace("v_", "")) || id})`}"><div class="cc-emoji">${cEmoji}</div><div class="cc-title">${esc(cName)}</div><div class="cc-meta">${ago(pd.lastPlayed)}</div></div>` }).join("")) : cs.style.display = "none", document.getElementById("curGrid").innerHTML = GAMES.map((g, i) => buildGL(g, i)).join(""), updateListCacheStatus(), renderTrending() } function heroLaunch() { const id = document.getElementById("heroPlay").getAttribute("data-id"); id && (GAMES.find(x => x.id === id) ? launchC(id) : launchV(parseInt(id))) } function renderTrending() { if (!vZones.length) return; const s = [...vZones].sort((a, b) => (vPop.week[b.id] || 0) - (vPop.week[a.id] || 0)).slice(0, 6); document.getElementById("trendGrid").innerHTML = s.map((z, i) => buildGC({ id: z.id, title: z.name, desc: z.author ? "by " + z.author : "", cover: z.cover ? z.cover.replace("{COVER_URL}", VC).replace("{HTML_URL}", VH) : "", plays: vPop.year[z.id] || 0, isFav: favs.includes("v_" + z.id), isCur: !1, si: i })).join("") } async function loadVault() { const lb = document.getElementById("vLoad"), lf = document.getElementById("vLoadFill"); lb.classList.add("visible"), lf.style.width = "10%"; try { let d = null; for (const u of VZ_URLS) try { const r = await fetch(u + "?t=" + Date.now()); if (r.ok) { d = await r.json(); break } } catch { } if (!d) throw new Error("Failed"); vZones = d, lf.style.width = "40%", await Promise.all([fetchVP("year"), fetchVP("week")]), lf.style.width = "80%"; const ts = new Set; vZones.forEach(z => { Array.isArray(z.special) && z.special.forEach(t => ts.add(t)) }); const sel = document.getElementById("vTag"); sel.innerHTML = '<option value="all">All Tags</option>', [...ts].sort().forEach(t => { const o = document.createElement("option"); o.value = t, o.textContent = t.charAt(0).toUpperCase() + t.slice(1), sel.appendChild(o) }), document.getElementById("vBadge").textContent = vZones.length, lf.style.width = "100%", setTimeout(() => lb.classList.remove("visible"), 500), vLoaded = !0, renderVault(), renderTrending(), "history" === curTab && renderHistory(), "home" === curTab && renderHome(), notifyTab("vault"), toast(`Vault: ${vZones.length} games loaded`, "🎮") } catch (e) { lf.style.width = "100%", lf.style.background = "var(--a5)", document.getElementById("vGrid").innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-i">❌</div><h3>Error</h3><p>${e.message}</p></div>` } } async function fetchVP(p) { try { const r = await fetch(VS + "?period=" + p), d = await r.json(); vPop[p] || (vPop[p] = {}), d.forEach(f => { const m = f.name.match(/\/(\d+)\.html$/); m && (vPop[p][parseInt(m[1])] = f.hits?.total ?? 0) }) } catch { } } function renderVault() { const q = (document.getElementById("vSearch").value || "").toLowerCase().trim(), tag = document.getElementById("vTag").value, sort = document.getElementById("vSort").value; let f = vZones.filter(z => !(q && !z.name.toLowerCase().includes(q) || !("all" === tag || z.special && z.special.includes(tag)))); "popular" === sort ? f.sort((a, b) => (vPop.year[b.id] || 0) - (vPop.year[a.id] || 0)) : "trending" === sort ? f.sort((a, b) => (vPop.week[b.id] || 0) - (vPop.week[a.id] || 0)) : "name" === sort ? f.sort((a, b) => a.name.localeCompare(b.name)) : "newest" === sort && f.sort((a, b) => b.id - a.id); const grid = document.getElementById("vGrid"), empty = document.getElementById("vEmpty"); if (!f.length) return grid.innerHTML = "", void (empty.style.display = "block"); empty.style.display = "none", grid.innerHTML = f.map((z, i) => buildGC({ id: z.id, title: z.name, desc: z.author ? "by " + z.author : "", cover: z.cover ? z.cover.replace("{COVER_URL}", VC).replace("{HTML_URL}", VH) : "", plays: vPop.year[z.id] || 0, isFav: favs.includes("v_" + z.id), isCur: !1, si: i < 40 ? i : void 0 })).join("") } function renderAuto() { const q = (document.getElementById("vSearch").value || "").toLowerCase().trim(), el = document.getElementById("vAuto"); if (!q || q.length < 2) return void el.classList.remove("visible"); const matches = vZones.filter(z => z.name.toLowerCase().includes(q)).slice(0, 5); matches.length ? (el.classList.add("visible"), el.innerHTML = matches.map(z => `<div class="v-auto-item" onclick="document.getElementById('vSearch').value='${esc(z.name)}';document.getElementById('vAuto').classList.remove('visible');renderVault()">${esc(z.name)}</div>`).join("")) : el.classList.remove("visible") } function togFav(id) { const fid = "number" == typeof id ? "v_" + id : id; favs.includes(fid) ? favs = favs.filter(f => f !== fid) : favs.push(fid), lsS("favs", favs), syncToFB(), "home" === curTab ? renderHome() : "vault" === curTab ? renderVault() : "favorites" === curTab && renderFavs() } function renderFavs() { const g = document.getElementById("favGrid"), e = document.getElementById("favEmpty"); if (!favs.length) return g.innerHTML = "", void (e.style.display = "block"); e.style.display = "none", g.innerHTML = favs.map((fid, i) => { if (fid.startsWith("v_")) { const vid = parseInt(fid.slice(2)), z = vZones.find(x => x.id === vid); return z ? buildGC({ id: z.id, title: z.name, desc: z.author ? "by " + z.author : "", cover: z.cover ? z.cover.replace("{COVER_URL}", VC).replace("{HTML_URL}", VH) : "", plays: vPop.year[z.id] || 0, isFav: !0, isCur: !1, si: i }) : "" } { const g2 = GAMES.find(x => x.id === fid); return g2 ? buildGC({ id: g2.id, title: g2.title, emoji: g2.emoji, desc: g2.desc, cat: g2.cat, isFav: !0, isCur: !0, si: i }) : "" } }).join("") } function renderHistory() { const l = document.getElementById("hList"), st = document.getElementById("hStats"), hm = document.getElementById("heatmap"), em = document.getElementById("hEmpty"); if (!sLog.length) return l.innerHTML = "", st.innerHTML = "", hm.innerHTML = "", void (em.style.display = "block"); em.style.display = "none"; const ts = sLog.length, tm = sLog.reduce((s, e) => s + e.ms, 0), av = ts ? Math.round(tm / ts) : 0; st.innerHTML = `<div class="h-stat glass glass-lift"><div class="hsv grad-text">${ts}</div><div class="hsl">Sessions</div></div><div class="h-stat glass glass-lift"><div class="hsv grad-text">${fmtTime(tm)}</div><div class="hsl">Total</div></div><div class="h-stat glass glass-lift"><div class="hsv grad-text">${fmtTime(av)}</div><div class="hsl">Average</div></div>`; const now = Date.now(), dt = {}; sLog.forEach(e => { const day = Math.floor(e.st / 864e5); dt[day] = (dt[day] || 0) + e.ms }); let cells = ""; for (let i = 59; i >= 0; i--) { const day = Math.floor((now - 864e5 * i) / 864e5), ms = dt[day] || 0; let lv = ""; ms > 36e5 ? lv = "l4" : ms > 18e5 ? lv = "l3" : ms > 6e5 ? lv = "l2" : ms > 0 && (lv = "l1"), cells += `<div class="hm-cell ${lv}" title="${ms ? fmtTime(ms) : "No play"}"></div>` } hm.innerHTML = cells, l.innerHTML = sLog.slice(0, 50).map(e => { const g = GAMES.find(x => x.id === e.id); let em2 = "🎮", ti = "", cover = ""; if (g) em2 = g.emoji, ti = g.title; else if (ti = resolveVaultName(e.id), String(e.id).startsWith("v_")) { const vid = parseInt(String(e.id).slice(2)), z = vZones.find(x => x.id === vid); z && z.cover && (cover = z.cover.replace("{COVER_URL}", VC).replace("{HTML_URL}", VH)) } return `<div class="h-entry"><div class="he-l">${cover ? `<img src="${cover}" style="width:36px;height:36px;border-radius:8px;object-fit:cover" onerror="this.outerHTML='<span class=he-e>🎮</span>'">` : `<span class="he-e">${em2}</span>`}<div class="he-i"><span class="he-t">${esc(ti)}</span><span class="he-d">${fmtDate(e.st)}</span></div></div><span class="he-dur">${fmtTime(e.ms)}</span></div>` }).join("") } function buildCacheInterceptor() { return `<script>(function(){var _ps={init:function(){return Promise.resolve()},gameLoadingStart:function(){},gameLoadingFinished:function(){},gameLoadingProgress:function(){},commercialBreak:function(){return Promise.resolve()},rewardedBreak:function(){return Promise.resolve({success:true})},displayAd:function(){return Promise.resolve()},destroyAd:function(){},gameplayStart:function(){},gameplayStop:function(){},setDebug:function(){},isAdBlocked:function(){return false},getURLParam:function(){return''},customAction:function(){return Promise.resolve()},captureError:function(){},shareableURL:function(){return Promise.resolve({url:''})},getLeaderboard:function(){return Promise.resolve({getEntries:function(){return Promise.resolve([])}})}};try{Object.defineProperty(window,'PokiSDK',{get:function(){return _ps},set:function(){},configurable:false})}catch(e){window.PokiSDK=_ps}var CN='${CACHE_NAME}';if(!window.caches)return;var oF=window.fetch;window.fetch=function(){var a=arguments;var u=(a[0]&&a[0].url)?a[0].url:(typeof a[0]==='string'?a[0]:'');return caches.open(CN).then(function(c){return c.match(u).then(function(r){if(r)return r.clone();return oF.apply(window,a).then(function(resp){if(resp&&resp.ok&&u&&!u.startsWith('data:')&&!u.startsWith('blob:')){try{c.put(u,resp.clone())}catch(e){}}return resp})})}).catch(function(){return oF.apply(window,a)})};})()<\/script>` } function buildLaunchOverlay(title, emoji) { return `<style>@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&family=JetBrains+Mono:wght@600&display=swap');#hb-ov{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#08050f;transition:opacity 1s ease}#hb-ov.hb-fade{opacity:0;pointer-events:none}.hb-orb{position:fixed;border-radius:50%;filter:blur(60px);opacity:0.2;pointer-events:none}.hb-orb1{width:400px;height:400px;background:#7c5cfc;top:-10%;left:-10%;animation:hb-of 8s ease-in-out infinite alternate}.hb-orb2{width:300px;height:300px;background:#a855f7;bottom:-10%;right:-10%;animation:hb-of 10s ease-in-out infinite alternate-reverse}@keyframes hb-of{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.1)}}.hb-card{background:rgba(18,10,36,0.65);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:44px 50px;display:flex;flex-direction:column;align-items:center;gap:18px;position:relative;box-shadow:0 0 60px rgba(124,92,252,0.15)}.hb-card::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,0.06) 0%,transparent 50%);pointer-events:none}.hb-emoji{font-size:3rem}.hb-s{width:40px;height:40px;border:3px solid rgba(255,255,255,0.08);border-radius:50%;border-top-color:#7c5cfc;border-right-color:#b47aff;animation:hb-sp 0.9s cubic-bezier(0.68,-0.3,0.27,1.2) infinite}@keyframes hb-sp{to{transform:rotate(360deg)}}.hb-title{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;background:linear-gradient(135deg,#7c5cfc 0%,#b47aff 50%,#38bdf8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hb-sub{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#9488aa;letter-spacing:1px}.hb-bar{width:180px;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden;margin-top:4px}.hb-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,#7c5cfc,#b47aff);border-radius:2px;animation:hb-load 2.5s ease-out forwards}@keyframes hb-load{to{width:100%}}#bootLoader{position:fixed;inset:0;z-index:999999;display:none;flex-direction:column;align-items:center;justify-content:center;background:#08050f;transition:opacity .8s ease}#bootLoader.fade-out{opacity:0;pointer-events:none}.bl-ring{width:64px;height:64px;border:3px solid rgba(124,92,252,.1);border-top:3px solid #7c5cfc;border-right:3px solid #a855f7;border-radius:50%;animation:blSpin .8s linear infinite;margin-bottom:28px;box-shadow:0 0 30px rgba(124,92,252,.15)}@keyframes blSpin{to{transform:rotate(360deg)}}.bl-logo{font-size:2rem;font-weight:800;background:var(--gd-btn);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;animation:blPulse 2s ease-in-out infinite}@keyframes blPulse{0%,100%{opacity:.6;transform:scale(.98)}50%{opacity:1;transform:scale(1)}}.bl-sub{font-size:.7rem;color:rgba(255,255,255,.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:40px}.bl-bar{width:200px;height:3px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}.bl-bar-fill{width:0;height:100%;background:var(--gd-btn);border-radius:3px;animation:blBar 1.5s ease-out forwards}@keyframes blBar{to{width:100%}}
 
 
@@ -1113,11 +1137,13 @@ button:active, .h-link:active, .gc-play:active, .gl-play:active, .hero-play:acti
 
     /* ===== USER PROFILE ===== */
     function initProfile() {
-      var u = lsG("auth", null) || "Player";
-      var name = u.charAt(0).toUpperCase() + u.slice(1);
+      var cu = firebase.auth().currentUser;
+      var email = cu ? cu.email : lsG("auth", null);
+      var name = email ? email.split("@")[0] : "Player";
+      name = name.charAt(0).toUpperCase() + name.slice(1);
       document.getElementById('hAvatar').textContent = name.charAt(0).toUpperCase();
       document.getElementById('hUname').textContent = name;
-      document.getElementById('hProfLabel').textContent = 'Logged in as ' + name;
+      document.getElementById('hProfLabel').textContent = 'Logged in as ' + (email || name);
       showAdminIfAllowed();
     }
     function toggleProfileMenu() {
@@ -1263,10 +1289,7 @@ updateListCacheStatus = async function() {
 };
 
 
-    document.getElementById("adPwInput").addEventListener("keydown", function(e) {
-      if (e.key === "Enter") adPwSubmit();
-      if (e.key === "Escape") adPwCancel();
-    });
+
     /* ===== PATCH: Hook into existing functions ===== */
     var _origRenderHome = renderHome;
     renderHome = function () { _origRenderHome(); injectHomeControls() };
@@ -1276,15 +1299,19 @@ updateListCacheStatus = async function() {
     
 
     /* ===== ADMIN PANEL (IN-PAGE TAB) ===== */
+    function isAdmin() {
+      var cu = firebase.auth().currentUser;
+      return cu && cu.email === "sahilgsa@outlook.com";
+    }
     function showAdminIfAllowed() {
-      var u = lsG("auth", null);
+      var admin = isAdmin();
       var pill = document.getElementById("pillAdmin");
       var hBtn = document.getElementById("hAdmin");
-      if (pill) pill.style.display = (u === "sahil") ? "" : "none";
-      if (hBtn) hBtn.classList.toggle("visible", u === "sahil");
+      if (pill) pill.style.display = admin ? "" : "none";
+      if (hBtn) hBtn.classList.toggle("visible", admin);
     }
     function openAdmin() {
-      if (lsG("auth", null) !== "sahil") return;
+      if (!isAdmin()) return;
       switchTab("admin");
       adminLoadUsers();
     }
@@ -1298,20 +1325,7 @@ updateListCacheStatus = async function() {
       e.style.border = "1px solid " + (ok ? "rgba(74,222,128,0.15)" : "rgba(244,63,94,0.15)");
       setTimeout(function() { e.style.display = "none"; }, 3000);
     }
-    async function adminAddUser() {
-      var u = document.getElementById("adUser").value.trim().toLowerCase();
-      var p = document.getElementById("adPass").value;
-      if (!u || !p) return adminMsg("adMsg", "Fill in both fields", false);
-      try {
-        var snap = await firebase.database().ref("users/" + u + "/password").once("value");
-        if (snap.val()) return adminMsg("adMsg", "Username '" + u + "' already exists", false);
-        await firebase.database().ref("users/" + u).set({ password: p });
-        adminMsg("adMsg", "Added '" + u + "'", true);
-        document.getElementById("adUser").value = "";
-        document.getElementById("adPass").value = "";
-        adminLoadUsers();
-      } catch(e) { adminMsg("adMsg", e.message, false); }
-    }
+    
     async function adminLoadUsers() {
       var list = document.getElementById("adList");
       if (!list) return;
@@ -1319,84 +1333,41 @@ updateListCacheStatus = async function() {
         var snap = await firebase.database().ref("users").once("value");
         if (!snap.val()) { list.innerHTML = '<div style="text-align:center;color:var(--tx3);padding:20px;font-size:.8rem">No users yet</div>'; document.getElementById("adCount").textContent = ""; return; }
         var users = snap.val();
-        var keys = Object.keys(users).sort();
+        var keys = Object.keys(users).sort(function(a,b) {
+          var ea = users[a].email || a, eb = users[b].email || b;
+          return ea.localeCompare(eb);
+        });
         document.getElementById("adCount").textContent = keys.length + " user" + (keys.length === 1 ? "" : "s");
         var html = '<div style="display:flex;flex-direction:column;gap:6px">';
-        keys.forEach(function(u, i) {
-          var pw = users[u].password || "—";
-          var sessions = users[u].pData ? Object.keys(users[u].pData).length : 0;
-          var uid = "adpw_" + i;
+        keys.forEach(function(uid, i) {
+          var email = users[uid].email || uid;
+          var displayName = email.split("@")[0];
+          var sessions = users[uid].pData ? Object.keys(users[uid].pData).length : 0;
+          var rowId = "adpw_" + i;
           html += '<div class="c-row" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px">';
           html += '<div style="display:flex;align-items:center;gap:12px"><span style="font-family:var(--mono);font-size:.65rem;color:var(--tx3);width:20px">' + (i+1) + '</span>';
-          html += '<div><div style="font-size:.85rem;font-weight:700">' + u + '</div>';
-          html += '<div style="display:flex;align-items:center;gap:6px"><span id="' + uid + '" style="font-size:.65rem;color:var(--tx3);font-family:var(--mono)">••••••••</span>';
-          html += '<button class="cr-x" id="' + uid + '_btn" style="color:var(--a2);font-size:.6rem;padding:2px 6px" onclick="adminShowPw(\'' + uid + '\',\'' + pw.replace(/'/g, "\\\'") + '\')">Show</button>';
+          html += '<div><div style="font-size:.85rem;font-weight:700">' + displayName + '</div>';
+          html += '<div style="display:flex;align-items:center;gap:6px">';
+          html += '<span style="font-size:.65rem;color:var(--tx3);font-family:var(--mono)">' + email + '</span>';
           html += '<span style="font-size:.65rem;color:var(--tx3);font-family:var(--mono)"> · ' + sessions + ' games</span></div></div></div>';
-          html += '<button class="cr-x" style="color:var(--a5)" onclick="adminDelUser(\'' + u + '\')">Delete</button>';
+          html += '<button class="cr-x" style="color:var(--a5)" onclick="adminDelUser(\'' + uid + '\',\'' + displayName + '\')">Delete</button>';
           html += '</div>';
         });
         html += '</div>';
         list.innerHTML = html;
       } catch(e) { list.innerHTML = '<div style="text-align:center;color:var(--a5);padding:20px;font-size:.8rem">Error: ' + e.message + '</div>'; }
     }
-    async function adminDelUser(u) {
-      if (!confirm("Delete '" + u + "'?")) return;
+    async function adminDelUser(uid, name) {
+      if (!confirm("Delete user '" + (name || uid) + "'? This only removes their hub data, not their Firebase Auth account.")) return;
       try {
-        await firebase.database().ref("users/" + u).remove();
-        adminMsg("adMsg", "Deleted '" + u + "'", true);
+        await firebase.database().ref("users/" + uid).remove();
+        adminMsg("adMsg", "Deleted '" + (name || uid) + "' data", true);
         adminLoadUsers();
       } catch(e) { adminMsg("adMsg", e.message, false); }
     }
 
-    var _adPwPending = null;
-    function adminShowPw(uid, pw) {
-      var btn = document.getElementById(uid + "_btn");
-      if (!btn) return;
-      if (btn.textContent === "Hide") {
-        document.getElementById(uid).textContent = "••••••••";
-        btn.textContent = "Show";
-        btn.style.color = "var(--a2)";
-        return;
-      }
-      _adPwPending = { uid: uid, pw: pw };
-      document.getElementById("adPwInput").value = "";
-      document.getElementById("adPwModal").classList.add("visible");
-      setTimeout(function() { document.getElementById("adPwInput").focus(); }, 100);
-    }
-    function adPwCancel() {
-      document.getElementById("adPwModal").classList.remove("visible");
-      _adPwPending = null;
-    }
-    function adPwSubmit() {
-      var code = document.getElementById("adPwInput").value;
-      if (code !== "potato") {
-        toast("Wrong admin code", "🔒");
-        document.getElementById("adPwInput").value = "";
-        document.getElementById("adPwInput").focus();
-        return;
-      }
-      document.getElementById("adPwModal").classList.remove("visible");
-      if (_adPwPending) {
-        document.getElementById(_adPwPending.uid).textContent = _adPwPending.pw;
-        var btn = document.getElementById(_adPwPending.uid + "_btn");
-        if (btn) { btn.textContent = "Hide"; btn.style.color = "var(--a5)"; }
-        _adPwPending = null;
-      }
-    }
-    async function adminChangePwd() {
-      var u = document.getElementById("adCUser").value.trim().toLowerCase();
-      var p = document.getElementById("adCPass").value;
-      if (!u || !p) return adminMsg("adCMsg", "Fill in both fields", false);
-      try {
-        var snap = await firebase.database().ref("users/" + u + "/password").once("value");
-        if (!snap.val()) return adminMsg("adCMsg", "User '" + u + "' not found", false);
-        await firebase.database().ref("users/" + u + "/password").set(p);
-        adminMsg("adCMsg", "Password updated for '" + u + "'", true);
-        document.getElementById("adCUser").value = "";
-        document.getElementById("adCPass").value = "";
-        adminLoadUsers();
-      } catch(e) { adminMsg("adCMsg", e.message, false); }
-    }
+
+    
 </script>
 </body>
 </html>
