@@ -490,11 +490,9 @@ async function loadGamesFromDB() {
 
   /* Pick up credentials injected by launcher */
   var _he = null, _hp = null;
-  var _hsession = null;
   if (window.__HUB_AUTH__) {
     _he = window.__HUB_AUTH__.email;
     _hp = window.__HUB_AUTH__.key;
-    _hsession = window.__HUB_AUTH__.session || null;
     delete window.__HUB_AUTH__;
   }
   /* Also check URL hash as fallback (for direct-URL deploys) */
@@ -508,7 +506,7 @@ async function loadGamesFromDB() {
 
   function bootHub() {
     loadGamesFromDB().then(function() { return loadFromFB(); }).then(function() {
-      initApp(); initProfile(); updatePillSlider(); startSessionGuard();
+      initApp(); initProfile(); updatePillSlider();
       var _el = Date.now() - _bs, _rm = Math.max(0, 1500 - _el);
       setTimeout(function() {
         var bl = document.getElementById("bootLoader");
@@ -1085,28 +1083,6 @@ button:active, .h-link:active, .gc-play:active, .gl-play:active, .hero-play:acti
 </style></head><body><div class="sb"><span class="sd"></span>Sandboxed</div><iframe sandbox="allow-scripts allow-same-origin" srcdoc="${esc(c)}"></iframe><div class="gd-overlay" id="gdOverlay" onclick="closeGameDetail(event)"><div class="gd-modal" onclick="event.stopPropagation()"><div class="gd-head"><div class="gd-emoji" id="gdEmoji">&#127918;</div><div class="gd-hinfo"><div class="gd-title" id="gdTitle">Game</div><span class="gd-badge" id="gdBadge"></span><div style="font-size:.72rem;color:var(--tx2);margin-top:4px" id="gdEngine"></div></div><button class="gd-close" onclick="closeGameDetail(event)">X</button></div><div class="gd-body"><div class="gd-desc" id="gdDesc"></div><div class="gd-stats" id="gdStats"></div><div class="gd-actions"><button class="gd-play" id="gdPlay">&#127918; Play Now</button><button class="gd-fav" id="gdFav" onclick="gdToggleFav()">&#10084;</button></div></div></div></div>
 </body></html>`, w = window.open("", "_blank"); w && (w.document.open(), w.document.write(s), w.document.close()) } function showCtx(e, id, isCur) { e.preventDefault(), e.stopPropagation(), ctxTgt = { id: id, cur: !!isCur }; const fid = isCur ? id : "v_" + id; document.getElementById("ctxFavLbl").textContent = favs.includes(fid) ? "Remove Favorite" : "Add to Favorites"; const m = document.getElementById("ctxMenu"); m.style.left = Math.min(e.clientX, innerWidth - 200) + "px", m.style.top = Math.min(e.clientY, innerHeight - 180) + "px", m.classList.add("visible") } function setupEvents() { let vt; document.getElementById("vSearch").addEventListener("input", () => { clearTimeout(vt), vt = setTimeout(() => { renderVault(), renderAuto() }, 180) }), document.getElementById("vSearch").addEventListener("blur", () => setTimeout(() => document.getElementById("vAuto").classList.remove("visible"), 200)), document.getElementById("vTag").addEventListener("change", renderVault), document.getElementById("vSort").addEventListener("change", renderVault), document.addEventListener("keydown", e => { const t = document.activeElement.tagName; "?" === e.key && "INPUT" !== t && "TEXTAREA" !== t && (e.preventDefault(), document.getElementById("kbOverlay").classList.toggle("visible")), "/" === e.key && "INPUT" !== t && "TEXTAREA" !== t && (e.preventDefault(), "vault" === curTab && document.getElementById("vSearch").focus()), "Escape" === e.key && (document.getElementById("vSearch").value = "", document.getElementById("vAuto").classList.remove("visible"), closeCfm(), document.getElementById("kbOverlay").classList.remove("visible"), "vault" === curTab && renderVault(), fabOpen && toggleFab()), "INPUT" !== t && "TEXTAREA" !== t && ("1" === e.key && switchTab("home"), "2" === e.key && switchTab("vault"), "3" === e.key && switchTab("favorites"), "4" === e.key && switchTab("history"), "5" === e.key && switchTab("cache"), "r" === e.key.toLowerCase() && launchRandom(), "t" === e.key.toLowerCase() && toggleTheme()) }), window.addEventListener("scroll", function () { if (!_hubVisible) return; document.getElementById("hdr").classList.toggle("compact", window.scrollY > 40); const p = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100; document.getElementById("scrollProg").style.width = Math.min(100, p || 0) + "%" }, {passive: true}) } document.addEventListener("click", () => document.getElementById("ctxMenu").classList.remove("visible")), document.querySelectorAll(".ctx-i").forEach(i => { i.addEventListener("click", () => { if (!ctxTgt) return; const a = i.dataset.a; if ("play" === a) ctxTgt.cur ? launchC(ctxTgt.id) : launchV(parseInt(ctxTgt.id)); else if ("fav" === a) togFav(ctxTgt.cur ? ctxTgt.id : parseInt(ctxTgt.id)); else if ("cache" === a) cacheG(ctxTgt.id, ctxTgt.cur ? 1 : 0); else if ("stats" === a) { const pd = pData[ctxTgt.cur ? ctxTgt.id : "v_" + ctxTgt.id]; toast(pd ? `${fmtTime(pd.totalMs)} played, ${pd.sessions || 0} sessions` : "No data yet", "📊") } document.getElementById("ctxMenu").classList.remove("visible") }) }), document.addEventListener("mousemove", function (e) { const gc = e.target.closest(".gc"); if (!gc) return; const rect = gc.getBoundingClientRect(), x = (e.clientX - rect.left) / rect.width, y = (e.clientY - rect.top) / rect.height, inner = gc.querySelector(".gc-inner"); inner && (inner.style.transform = `perspective(800px) rotateY(${6 * (x - .5)}deg) rotateX(${6 * (.5 - y)}deg)`); const glow = gc.querySelector(".gc-glow"); glow && (glow.style.left = e.clientX - rect.left + "px", glow.style.top = e.clientY - rect.top + "px") }), document.addEventListener("mouseleave", function (e) { const gc = e.target.closest && e.target.closest(".gc"); if (gc) { const inner = gc.querySelector(".gc-inner"); inner && (inner.style.transform = "") } }, !0);
       
-    /* ===== SESSION ENFORCEMENT ===== */
-    function startSessionGuard() {
-      if (!_hsession) return; /* No session to guard */
-      var cu = firebase.auth().currentUser;
-      if (!cu) return;
-      var ref = firebase.database().ref("users/" + cu.uid + "/activeSession");
-      /* Listen for session changes in real-time */
-      ref.on("value", function(snap) {
-        var current = snap.val();
-        if (current && current !== _hsession) {
-          /* Another device signed in - kick this session */
-          ref.off(); /* Stop listening */
-          document.getElementById("app").style.display = "none";
-          var kickDiv = document.createElement("div");
-          kickDiv.style.cssText = "position:fixed;inset:0;z-index:999999;background:#08050f;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif";
-          kickDiv.innerHTML = '<div style="background:rgba(18,10,36,0.65);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:48px 40px;max-width:420px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(244,63,94,0.18)"><div style="font-size:3rem;margin-bottom:16px">&#9940;</div><div style="font-size:1.3rem;font-weight:800;color:#f2eef8;margin-bottom:8px">Session Ended</div><div style="font-size:.82rem;color:#6e6488;margin-bottom:20px;line-height:1.5">Someone signed into this account from another device. Only one active session is allowed.</div><div style="font-family:\'JetBrains Mono\',monospace;font-size:.65rem;color:rgba(110,100,136,0.5);letter-spacing:1px">SIGN IN AGAIN FROM LAUNCHER</div></div>';
-          document.body.appendChild(kickDiv);
-          /* Sign out locally */
-          try { firebase.auth().signOut(); } catch(e) {}
-        }
-      });
-    }
     /* ===== GLOBAL SEARCH ===== */
       ;(function () {
         const gsInput = document.getElementById('gsInput'), gsResults = document.getElementById('gsResults'), gsWrap = document.getElementById('gsWrap'), gsKbd = document.querySelector('.gs-kbd');
