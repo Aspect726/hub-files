@@ -5128,17 +5128,19 @@
         html = html.replace(/<script[^>]*src=["'][^"']*yandex[^"']*["'][^>]*><\/script>/gi, "");
         html = html.replace(/window\.parent\.maeExportApis_\(\);?/g, "");
         html = html.replace(/<Module>\s*/gi, "");
-        html = html.replace(/<script[^>]*src=["'][^"']*poki-sdk[^"']*["'][^>]*><\/script>/gi, "");
-        html = html.replace(/<script[^>]*src=["'][^"']*GameAnalytics[^"']*["'][^>]*><\/script>/gi, "");
-        var platformStubs = '<script>(function(){window.GamePush={init:function(){return Promise.resolve()},player:{on:function(){},get:function(){return""},set:function(){},sync:function(){return Promise.resolve()},load:function(){return Promise.resolve()},login:function(){return Promise.resolve()},isLoggedIn:false,id:0,score:0,name:"Player",avatar:"",stats:{activeDays:0,activeDaysConsecutive:0,playtimeToday:0,playtimeAll:0},fields:[],fetchFields:function(){},has:function(){return false},toggle:function(){},add:function(){},remove:function(){},reset:function(){}},ads:{on:function(){},showFullscreen:function(){return Promise.resolve()},showRewardedVideo:function(){return Promise.resolve()},showPreloader:function(){return Promise.resolve()},showSticky:function(){},closeSticky:function(){},refreshSticky:function(){},isAdblockEnabled:false,isStickyAvailable:false,isFullscreenAvailable:false,isRewardedAvailable:false,isPreloaderAvailable:false},leaderboard:{on:function(){},open:function(){return Promise.resolve()},fetch:function(){return Promise.resolve({players:[]})}},achievements:{on:function(){},open:function(){return Promise.resolve()},fetch:function(){return Promise.resolve({achievements:[]})},unlock:function(){return Promise.resolve({success:true})},has:function(){return false},getProgress:function(){return 0}},fullscreen:{on:function(){},open:function(){},close:function(){},toggle:function(){}},socials:{on:function(){},share:function(){},isSupportsShare:false,communityLink:"",makeShareUrl:function(){return""},getShareParam:function(){return""}},payments:{on:function(){},isAvailable:false,fetchProducts:function(){return Promise.resolve({products:[],playerPurchases:[]})},purchase:function(){return Promise.resolve({success:false})}},channels:{on:function(){},isMainChatEnabled:false,mainChatId:0,openChat:function(){}},gamesCollections:{on:function(){},open:function(){return Promise.resolve()},fetch:function(){return Promise.resolve([])}},variables:{fetch:function(){return Promise.resolve()},has:function(){return false},get:function(){return""}},documents:{on:function(){}},files:{on:function(){}},players:{fetch:function(){return Promise.resolve({players:[]})}},on:function(){},app:{title:"",description:"",image:"",url:"",requestReview:function(){return Promise.resolve({success:false})},canRequestReview:false},platform:{type:"CUSTOM",hasIntegratedAuth:false,isExternalLinksAllowed:true,getNativeSDK:function(){return{game:{happytime:function(){}}}}},analytics:{hit:function(){},goal:function(){}},isDev:false,isAllowedOrigin:true,isMobile:false,isPortrait:false,serverTime:Date.now(),isPaused:false,language:"en",gameStart:function(){},gameplayStart:function(){},gameplayStop:function(){},pause:function(){},resume:function(){},changeLanguage:function(){},loadOverlay:function(){}};window.gp=window.GamePush;if(typeof GamePushInit==="undefined"){window.GamePushInit=function(o){if(o&&o.callback)try{o.callback(window.GamePush)}catch(e){}return Promise.resolve(window.GamePush)}}})()</scr' + 'ipt>';
+        html = html.replace(/await\s+_gpAwaiter\.ready;/g, "");
+        var stubs = buildPlatformStubs();
         var ci = buildCacheInterceptor();
-        var inject = platformStubs + ci;
+        var baseUrl = z.directUrl.substring(0, z.directUrl.lastIndexOf("/") + 1);
+        var hasBase = /<base[\s>]/i.test(html);
+        var bt = hasBase ? "" : '<base href="' + baseUrl + '">\n';
+        var inject = stubs + bt + ci;
         if (/<head[\s>]/i.test(html)) { html = html.replace(/(<head[^>]*>)/i, "$1" + inject); } else { html = inject + html; }
         var ov = buildLaunchOverlay(z.name, "\u{1F3AE}");
         if (/<body[\s>]/i.test(html)) { html = html.replace(/(<body[^>]*>)/i, "$1" + ov); } else { html += ov; }
-        var win = window.open("", "_blank");
+        var blob = new Blob([html], { type: "text/html" });
+        var win = window.open(URL.createObjectURL(blob), "_blank");
         if (!win) throw new Error("Pop-up blocked!");
-        win.document.open(); win.document.write(html); win.document.close();
         var vid = "v_" + z.id; recStart(vid); trackWin(vid, win, null, z.name);
         updateStats(); toast("Launched " + z.name, "\u{1F680}");
       } catch (e) { toast("Failed: " + e.message, "\u274C"); }
