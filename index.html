@@ -5096,17 +5096,39 @@
          Unity WebGL game. launchC's default pipeline (script stripping +
          cache interceptor injection) interferes with Unity's streaming
          instantiation, so the preloader fills but createUnityInstance never
-         completes. This bypass fetches the HTML from jsDelivr (which serves
-         .wasm with the correct application/wasm MIME type), injects a
-         <base href> to jsDelivr if missing so relative Unity build assets
-         resolve correctly, and opens it as a Blob with ZERO other processing. */
+         completes. This bypass:
+           1. Deletes any stale copy of the jsDelivr HTML from hub-v3-cache
+              so the hub's service worker doesn't serve a previously-broken
+              version from its own cache.
+           2. Fetches the HTML fresh from jsDelivr (correct MIME types).
+           3. Regex-patches two known issues at launch time — a relative
+              streamingAssetsUrl that throws in `new URL(...)`, and a stray
+              `<Module>` root tag that drops the document into Quirks Mode.
+              Both patches are no-ops if the repo version is already clean,
+              so they're safe to keep as a safety net against Unity re-exports.
+           4. Injects a <base href> pointing at the jsDelivr directory if the
+              HTML doesn't already have one.
+           5. Wraps in a Blob and opens — no script stripping, no cache
+              interceptor, no launch overlay injected. */
       if (/stickman\s*duel/i.test(game.title || "")) {
         try {
           var sdUrl = "https://cdn.jsdelivr.net/gh/Aspect726/hub-files@main/clstickmanduel.html";
           var sdBase = "https://cdn.jsdelivr.net/gh/Aspect726/hub-files@main/";
+          /* Evict any stale SW-cached copy so we always get the latest jsDelivr build */
+          try {
+            var _sdCache = await caches.open(CACHE_NAME);
+            await _sdCache.delete(sdUrl);
+          } catch (e) { }
           var sdResp = await fetch(sdUrl);
           if (!sdResp.ok) throw new Error("Fetch failed: " + sdResp.status);
           var sdHtml = await sdResp.text();
+          /* Patch 1: absolute streamingAssetsUrl (Unity throws on `new URL("StreamingAssets")`) */
+          sdHtml = sdHtml.replace(
+            /streamingAssetsUrl\s*:\s*["']StreamingAssets["']/,
+            'streamingAssetsUrl: buildUrl + "/StreamingAssets"'
+          );
+          /* Patch 2: replace stray <Module> root tag with <!DOCTYPE html> to exit Quirks Mode */
+          sdHtml = sdHtml.replace(/^\s*<Module>\s*/i, '<!DOCTYPE html>\n');
           if (!/<base[\s>]/i.test(sdHtml)) {
             var sdTag = '<base href="' + sdBase + '">\n';
             if (/<head[\s>]/i.test(sdHtml)) {
