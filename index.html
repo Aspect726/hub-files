@@ -59,7 +59,9 @@
       --cat-platformer: #fb923c;
       --cat-roguelite: #f97316;
       --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)
+      --bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      --bounce-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --press-ease: cubic-bezier(0.2, 0.8, 0.4, 1)
     }
 
     .light {
@@ -717,16 +719,16 @@
     }
 
     .school-bar.visible~#app .pill-nav {
-      top: 120px
+      top: 162px
     }
 
     .school-bar.visible~#app .main {
-      padding-top: 197px
+      padding-top: 240px
     }
 
     .pill-nav {
       position: fixed;
-      top: 78px;
+      top: 120px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 99;
@@ -838,7 +840,7 @@
     .main {
       position: relative;
       z-index: 2;
-      padding-top: 160px;
+      padding-top: 200px;
       min-height: 100vh
     }
 
@@ -3784,25 +3786,6 @@
       transform: scale(1.08) translateY(-1px) !important;
     }
 
-    /* Game card tilt is already there, add a subtle bounce on hover */
-    .gc-inner:hover {
-      animation: gc-bump 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    @keyframes gc-bump {
-      0% {
-        transform: scale(1);
-      }
-
-      40% {
-        transform: scale(1.02);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-
     /* Continue playing cards - slide up entrance */
     .cont-card {
       animation: cont-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
@@ -4644,6 +4627,277 @@
     .vl-fav:active {
       transform: scale(0.9) !important;
     }
+
+    /* ============================================================
+       UI POLISH PASS — bouncy hovers, press feedback, micro effects.
+       --bounce-spring and --press-ease are declared in the main :root
+       at the top of this stylesheet.
+       ============================================================ */
+
+    /* --- TILE BOUNCE ---
+       box-shadow transition is scoped to just .gc-inner and .cont-card
+       since those are the only tiles that animate shadow on hover.
+       Not declaring `will-change: transform` here on purpose — it would
+       promote hundreds of vault/list rows to their own compositor layer
+       at rest, which burns GPU memory. The browser auto-promotes on hover. */
+    .gc-inner,
+    .cont-card {
+      transition:
+        transform 0.42s var(--bounce-spring),
+        box-shadow 0.42s ease,
+        border-color 0.3s ease,
+        background 0.3s ease !important;
+    }
+
+    .vl-card,
+    .gl,
+    .h-entry,
+    .h-stat,
+    .c-row {
+      transition:
+        transform 0.42s var(--bounce-spring),
+        border-color 0.3s ease,
+        background 0.3s ease !important;
+    }
+
+    .gc:hover .gc-inner {
+      transform: translateY(-8px) scale(1.025);
+      box-shadow: 0 20px 50px -20px rgba(124, 92, 252, 0.45), 0 0 0 1px rgba(180, 122, 255, 0.25) inset;
+    }
+
+    .gc:active .gc-inner {
+      transform: translateY(-2px) scale(0.985);
+      transition: transform 0.12s var(--press-ease) !important;
+    }
+
+    .cont-card:hover {
+      transform: translateY(-7px) scale(1.04) !important;
+      box-shadow: 0 18px 42px -18px rgba(124, 92, 252, 0.5) !important;
+    }
+
+    .cont-card:active {
+      transform: translateY(-1px) scale(0.97) !important;
+      transition: transform 0.12s var(--press-ease) !important;
+    }
+
+    .cont-card .cc-emoji {
+      transition: transform 0.42s var(--bounce-spring);
+    }
+
+    .cont-card:hover .cc-emoji {
+      transform: scale(1.18) rotate(-6deg);
+    }
+
+    .gl:hover {
+      transform: translateX(4px) scale(1.005);
+    }
+
+    .h-stat:hover {
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    /* --- BUTTON BOUNCE --- */
+    .pill-btn,
+    .gc-play,
+    .gc-fav,
+    .gc-cache,
+    .vl-play,
+    .vl-fav,
+    .h-ql-btn,
+    .hdr-btn,
+    #fab,
+    .fab-item,
+    .gd-play-btn,
+    .theme-tog,
+    .c-row button,
+    .sb-cache-pill {
+      transition:
+        transform 0.4s var(--bounce-spring),
+        box-shadow 0.3s ease,
+        background 0.3s ease,
+        color 0.3s ease !important;
+    }
+
+    .pill-btn:hover {
+      transform: translateY(-2px) scale(1.06);
+    }
+
+    .pill-btn:active {
+      transform: translateY(0) scale(0.96);
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    .pill-btn.active {
+      transform: translateY(-1px);
+    }
+
+    .gc-play:hover {
+      transform: translateY(-2px) scale(1.08) !important;
+      box-shadow: 0 10px 24px -8px rgba(124, 92, 252, 0.55) !important;
+    }
+
+    .gc-play:active {
+      transform: scale(0.93) !important;
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    .gc-fav:hover,
+    .gc-cache:hover {
+      transform: scale(1.18) rotate(-4deg) !important;
+    }
+
+    .gc-fav:active,
+    .gc-cache:active {
+      transform: scale(0.86) !important;
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    .vl-play:hover {
+      transform: scale(1.08) !important;
+      box-shadow: 0 8px 22px -6px rgba(124, 92, 252, 0.55);
+    }
+
+    .vl-play:active {
+      transform: scale(0.93) !important;
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    .h-ql-btn:hover {
+      transform: translateY(-3px) scale(1.1);
+    }
+
+    .h-ql-btn:active {
+      transform: scale(0.92);
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    .hdr-btn:hover,
+    .sb-cache-pill:hover,
+    .theme-tog:hover {
+      transform: translateY(-2px) scale(1.05);
+    }
+
+    .hdr-btn:active,
+    .sb-cache-pill:active,
+    .theme-tog:active {
+      transform: scale(0.94);
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    #fab:hover {
+      transform: scale(1.1) rotate(10deg);
+    }
+
+    #fab:active {
+      transform: scale(0.92);
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    .fab-item:hover {
+      transform: translateX(-4px) scale(1.05);
+    }
+
+    .fab-item:active {
+      transform: scale(0.95);
+      transition: transform 0.1s var(--press-ease) !important;
+    }
+
+    /* --- TRENDING VAULT CARDS ON HOME: strip image area, normalize size ---
+       None of the trending vault games have cover images so the .gc-vis block
+       just renders an oversized emoji placeholder that makes the cards feel
+       inconsistent. Hide the cover area entirely and tighten the card so
+       every trending tile is the same compact height. */
+    #trendGrid {
+      grid-auto-rows: 1fr;
+    }
+
+    #trendGrid .gc-inner {
+      min-height: 140px;
+    }
+
+    #trendGrid .gc-vis {
+      display: none !important;
+    }
+
+    #trendGrid .gc-body {
+      padding-top: 18px !important;
+    }
+
+    #trendGrid .gc-inner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #7c5cfc, #b47aff, #38bdf8);
+      opacity: 0.7;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* --- INPUT FOCUS POLISH --- */
+    input,
+    select,
+    textarea {
+      transition: box-shadow 0.25s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.22), 0 0 20px rgba(124, 92, 252, 0.15);
+    }
+
+    /* --- SCROLLBAR POLISH: make it glow a bit on hover --- */
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #8e6cff, #b47aff);
+      box-shadow: 0 0 8px rgba(124, 92, 252, 0.4);
+    }
+
+    /* --- SELECTION: match the theme --- */
+    ::selection {
+      background: rgba(124, 92, 252, 0.35);
+      color: #fff;
+    }
+
+    /* --- RESPECT REDUCED MOTION --- */
+    @media (prefers-reduced-motion: reduce) {
+
+      .gc-inner,
+      .cont-card,
+      .vl-card,
+      .gl,
+      .h-entry,
+      .h-stat,
+      .pill-btn,
+      .gc-play,
+      .gc-fav,
+      .gc-cache,
+      .vl-play,
+      .vl-fav,
+      .h-ql-btn,
+      .hdr-btn,
+      #fab,
+      .fab-item {
+        transition: none !important;
+      }
+
+      .gc:hover .gc-inner,
+      .cont-card:hover,
+      .vl-card:hover,
+      .pill-btn:hover,
+      .gc-play:hover,
+      .gc-fav:hover,
+      .gc-cache:hover,
+      .vl-play:hover,
+      .h-ql-btn:hover,
+      .hdr-btn:hover,
+      #fab:hover {
+        transform: none !important;
+      }
+    }
   </style>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
@@ -5136,6 +5390,16 @@
             } else {
               sdHtml = sdTag + sdHtml;
             }
+          }
+          /* Inject the hub's branded loading overlay so Stickman Duel shows the
+             same launch screen as every other game. The overlay auto-fades itself
+             after 3.5s (see buildLaunchOverlay()), which comfortably covers the
+             Unity preload-and-instantiate window. */
+          var sdOv = buildLaunchOverlay(game.title, game.emoji);
+          if (/<body[\s>]/i.test(sdHtml)) {
+            sdHtml = sdHtml.replace(/(<body[^>]*>)/i, "$1" + sdOv);
+          } else {
+            sdHtml += sdOv;
           }
           var sdBlob = new Blob([sdHtml], { type: "text/html" });
           var sdBlobUrl = URL.createObjectURL(sdBlob);
